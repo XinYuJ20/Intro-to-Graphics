@@ -19,6 +19,28 @@
         }
     </script>
 
+    <script id="phong-V" type="x-shader/x-vertex">
+      #version 300 es
+      in vec3 aVertexPosition;
+      in vec3 aVertexNormal;
+  
+      uniform mat4 uModelMatrix;
+      uniform mat4 uViewMatrix;
+      uniform mat4 uProjMatrix;
+  
+      out vec3 vNormal;
+      out vec3 vViewDir;
+  
+      void main() {
+          vec4 worldPosition = uModelMatrix * vec4(aVertexPosition, 1.0);
+          gl_Position = uProjMatrix * uViewMatrix * worldPosition;
+  
+          vNormal = mat3(transpose(inverse(uModelMatrix))) * aVertexNormal;
+          vViewDir = (uViewMatrix * worldPosition).xyz;
+      }
+  </script>
+  
+
      <!-- wireframe fragment Shaders -->
      <script id="wireframe-F" type="x-shader/x-fragment">
          #version 300 es
@@ -32,6 +54,41 @@
          }
 
      </script>
+
+     <script id="phong-F" type="x-shader/x-fragment">
+      #version 300 es
+      precision mediump float;
+  
+      in vec3 vNormal;
+      in vec3 vViewDir;
+  
+      uniform vec3 uLightPosition;
+      uniform vec3 uLightColor;
+      uniform vec3 uAmbientColor;
+      uniform vec3 uDiffuseColor;
+      uniform vec3 uSpecularColor;
+      uniform float uShininess;
+  
+      out vec4 fragColor;
+  
+      void main() {
+          vec3 normal = normalize(vNormal);
+          vec3 lightDir = normalize(uLightPosition - gl_FragCoord.xyz);
+          vec3 viewDir = normalize(vViewDir);
+          vec3 halfwayDir = normalize(lightDir + viewDir);
+  
+          float diffuse = max(dot(normal, lightDir), 0.0);
+          float specular = pow(max(dot(normal, halfwayDir), 0.0), uShininess);
+  
+          vec3 ambient = uAmbientColor * uLightColor;
+          vec3 diffuseColor = uDiffuseColor * uLightColor * diffuse;
+          vec3 specularColor = uSpecularColor * uLightColor * specular;
+  
+          vec3 finalColor = ambient + diffuseColor + specularColor;
+          fragColor = vec4(finalColor, 1.0);
+      }
+  </script>
+  
      
      <!-- Matrix library and code for standard transformations -->
      <script type="text/javascript" src="gl-matrix-min.js"></script>

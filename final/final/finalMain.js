@@ -6,8 +6,10 @@
 
   // GLSL programs
   let wireframeP;
+  let phongP;
   // VAOs for the objects
   var myCube = null;
+  var myCylinder = null;
   // textures
 
   // rotation
@@ -21,6 +23,9 @@ function createShapes() {
 
   myCube = new Cube(3);
   myCube.VAO = bindVAO (myCube, wireframeP);
+
+  myCylinder = new Cylinder(20,20);
+  myCylinder.VAO = bindVAO (myCylinder, wireframeP);
 
 }
 
@@ -76,12 +81,19 @@ function setUpTextures(){
 //
 function drawShapes() {
 
-  let modelMatrixCubeTopLeft = glMatrix.mat4.create(); 
-  glMatrix.mat4.scale(modelMatrixCubeTopLeft, modelMatrixCubeTopLeft, [1.25, 0.2, 1.3]);
-  glMatrix.mat4.translate(modelMatrixCubeTopLeft, modelMatrixCubeTopLeft, [1.5, 3, 1])
-  gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixCubeTopLeft); // Corrected line
+  let modelMatrixPond = glMatrix.mat4.create(); 
+  glMatrix.mat4.scale(modelMatrixPond, modelMatrixPond, [4, 0.3, 4]);
+  glMatrix.mat4.translate(modelMatrixPond, modelMatrixPond,[0,0,0])
+  gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixPond); 
   gl.bindVertexArray(myCube.VAO);
   gl.drawElements(gl.TRIANGLES, myCube.indices.length, gl.UNSIGNED_SHORT, 0);
+
+  let modelMatrixlily1 = glMatrix.mat4.create();
+  glMatrix.mat4.scale(modelMatrixlily1, modelMatrixlily1, [1, 0.5, 1]);
+  glMatrix.mat4.translate(modelMatrixlily1, modelMatrixlily1,[ 2, 3, 0])
+  gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixlily1); 
+  gl.bindVertexArray(myCylinder.VAO);
+  gl.drawElements(gl.TRIANGLES, myCylinder.indices.length, gl.UNSIGNED_SHORT, 0);
 
 }
 
@@ -106,7 +118,7 @@ function drawShapes() {
 
     // We attach the location of these shader values to the program instance
     // for easy access later in the code
-    wireframeP.aVertexPosition = gl.getAttribLocation(wireframeP, 'aVertexPosition');
+    //  wireframeP.aVertexPosition = gl.getAttribLocation(wireframeP, 'aVertexPosition');
     wireframeP.uModelMatrix = gl.getUniformLocation(wireframeP, 'uModelMatrix');
     wireframeP.uViewMatrix = gl.getUniformLocation(wireframeP, 'uViewMatrix');
     wireframeP.uProjMatrix = gl.getUniformLocation(wireframeP, 'uProjMatrix');
@@ -208,6 +220,8 @@ function getShader(id) {
       console.error('Could not initialize shaders');
       return null;
     }
+
+    program.aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
       
     return program;
   }
