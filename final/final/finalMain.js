@@ -28,7 +28,7 @@ function createShapes() {
   myCylinder = new Cylinder(20,20);
   myCylinder.VAO = bindVAO (myCylinder, wireframeP);
 
-  mySphere = new Sphere(20);
+  mySphere = new Sphere(20, 20);
   mySphere.VAO = bindVAO (mySphere, shaderP);
 
 }
@@ -91,8 +91,6 @@ function drawShapes() {
   // gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixPond); 
   // gl.bindVertexArray(myCube.VAO);
   // gl.drawElements(gl.TRIANGLES, myCube.indices.length, gl.UNSIGNED_SHORT, 0);
-
-
   
   // let modelMatrixlily1 = glMatrix.mat4.create();
   // glMatrix.mat4.scale(modelMatrixlily1, modelMatrixlily1, [1, 0.5, 1]);
@@ -102,7 +100,7 @@ function drawShapes() {
   // gl.drawElements(gl.TRIANGLES, myCylinder.indices.length, gl.UNSIGNED_SHORT, 0);
 
   let modelMatrixSphere = glMatrix.mat4.create();
-  glMatrix.mat4.translate(modelMatrixSphere, modelMatrixSphere,[ 0, 0, 0])
+  glMatrix.mat4.translate(modelMatrixSphere, modelMatrixSphere,[ 0, 0, 0]);
   gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixSphere); 
   gl.bindVertexArray(mySphere.VAO);
   gl.drawElements(gl.TRIANGLES, mySphere.indices.length, gl.UNSIGNED_SHORT, 0);
@@ -133,8 +131,6 @@ function drawShapes() {
     wireframeP.uModelMatrix = gl.getUniformLocation(wireframeP, 'uModelMatrix');
     wireframeP.uViewMatrix = gl.getUniformLocation(wireframeP, 'uViewMatrix');
     wireframeP.uProjMatrix = gl.getUniformLocation(wireframeP, 'uProjMatrix');
-
-    shaderP.aNormal = gl.getAttribLocation(shaderP, 'aNormal');
       
     // uniforms
     shaderP.uModelT = gl.getUniformLocation (shaderP, 'modelT');
@@ -168,7 +164,11 @@ function drawShapes() {
       gl.vertexAttribPointer(program.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
       
       // add code for any additional vertex attribute
-
+      let myNormalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.normals), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(program.myNormalBuffer);
+      gl.vertexAttribPointer(program.myNormalBuffer, 3, gl.FLOAT, false, 0, 0);
       
       // Setting up the IBO
       let myIndexBuffer = gl.createBuffer();
@@ -249,7 +249,8 @@ function getShader(id) {
     }
 
     program.aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
-      
+    program.aNormal = gl.getAttribLocation(program, 'aNormal');
+
     return program;
   }
 
