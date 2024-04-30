@@ -6,7 +6,7 @@
 
   // GLSL programs
   let wireframeP;
-  let phongP;
+  let shaderP;
   // VAOs for the objects
   var myCube = null;
   var myCylinder = null;
@@ -88,6 +88,8 @@ function drawShapes() {
   gl.bindVertexArray(myCube.VAO);
   gl.drawElements(gl.TRIANGLES, myCube.indices.length, gl.UNSIGNED_SHORT, 0);
 
+
+  
   let modelMatrixlily1 = glMatrix.mat4.create();
   glMatrix.mat4.scale(modelMatrixlily1, modelMatrixlily1, [1, 0.5, 1]);
   glMatrix.mat4.translate(modelMatrixlily1, modelMatrixlily1,[ 2, 3, 0])
@@ -111,17 +113,33 @@ function drawShapes() {
   function initPrograms() {
     
     wireframeP = initProgram("wireframe-V", "wireframe-F" );
+    shaderP = initProgram("phong-per-vertex-V", "phong-per-vertex-F")
     // Use this program instance
     gl.useProgram(wireframeP);
-
+    gl.useProgram(shaderP);
     
-
     // We attach the location of these shader values to the program instance
     // for easy access later in the code
     //  wireframeP.aVertexPosition = gl.getAttribLocation(wireframeP, 'aVertexPosition');
     wireframeP.uModelMatrix = gl.getUniformLocation(wireframeP, 'uModelMatrix');
     wireframeP.uViewMatrix = gl.getUniformLocation(wireframeP, 'uViewMatrix');
     wireframeP.uProjMatrix = gl.getUniformLocation(wireframeP, 'uProjMatrix');
+
+    shaderP.aNormal = gl.getAttribLocation(shaderP, 'aNormal');
+      
+    // uniforms
+    shaderP.uModelT = gl.getUniformLocation (shaderP, 'modelT');
+    shaderP.uViewT = gl.getUniformLocation (shaderP, 'viewT');
+    shaderP.uProjT = gl.getUniformLocation (shaderP, 'projT');
+    shaderP.ambientLight = gl.getUniformLocation (shaderP, 'ambientLight');
+    shaderP.lightPosition = gl.getUniformLocation (shaderP, 'lightPosition');
+    shaderP.lightColor = gl.getUniformLocation (shaderP, 'lightColor');
+    shaderP.baseColor = gl.getUniformLocation (shaderP, 'baseColor');
+    shaderP.specHighlightColor = gl.getUniformLocation (shaderP, 'specHighlightColor');
+    shaderP.ka = gl.getUniformLocation (shaderP, 'ka');
+    shaderP.kd = gl.getUniformLocation (shaderP, 'kd');
+    shaderP.ks = gl.getUniformLocation (shaderP, 'ks');
+    shaderP.ke = gl.getUniformLocation (shaderP, 'ke');
     
     setUpCamera(wireframeP);
   }

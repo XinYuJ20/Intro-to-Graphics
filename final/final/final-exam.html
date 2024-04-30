@@ -19,26 +19,70 @@
         }
     </script>
 
-    <script id="phong-V" type="x-shader/x-vertex">
-      #version 300 es
-      in vec3 aVertexPosition;
-      in vec3 aVertexNormal;
-  
-      uniform mat4 uModelMatrix;
-      uniform mat4 uViewMatrix;
-      uniform mat4 uProjMatrix;
-  
-      out vec3 vNormal;
-      out vec3 vViewDir;
-  
-      void main() {
-          vec4 worldPosition = uModelMatrix * vec4(aVertexPosition, 1.0);
-          gl_Position = uProjMatrix * uViewMatrix * worldPosition;
-  
-          vNormal = mat3(transpose(inverse(uModelMatrix))) * aVertexNormal;
-          vViewDir = (uViewMatrix * worldPosition).xyz;
-      }
-  </script>
+    <script id="phong-per-vertex-V"  type="x-shader/x-vertex">
+        #version 300 es
+        precision mediump float;
+        // Vertex shader for phong illumination model
+        // Per vertex shading
+    
+        // Vertex Attributes
+        in vec3 aVertexPosition; // in model coords
+        in vec3 aNormal;    // in model coords
+    
+        // outputs
+        out vec3 theColor;
+          
+        // Transforms
+        uniform mat4 modelT;
+        uniform mat4 viewT;
+        uniform mat4 projT;
+    
+        // Light parameters
+        uniform vec3 ambientLight;
+        uniform vec3 lightPosition;   // in world coords
+        uniform vec3 lightColor;
+    
+        // object color parameters
+        uniform vec3 baseColor;
+        uniform vec3 specHighlightColor;
+    
+        // Phong parameters
+        uniform float ka;
+        uniform float kd;
+        uniform float ks;
+        uniform float ke;
+          
+        void main()
+        {
+            // All calculations will be done in camera space
+            mat4 modelView = viewT * modelT;
+            mat4 normalmatrix = transpose(inverse (modelView));
+            
+            vec3 vcam = (modelView * vec4(aVertexPosition, 1.0)).xyz;
+            vec3 lcam = (viewT * vec4(lightPosition, 1.0)).xyz;
+            vec3 ncam = (normalmatrix * vec4(aNormal, 1.0)).xyz;
+            ncam = faceforward (ncam, vcam, ncam);
+            
+            
+            vec3 N = normalize (ncam);
+            vec3 L = normalize (lcam - vcam);
+            vec3 R = normalize (reflect (-L, N));
+            vec3 V = -normalize (vcam);
+            
+            // individual components
+            vec3 ambient = ka * ambientLight * baseColor;
+            vec3 diffuse = kd * lightColor * baseColor * max (dot(L, N), 0.0);
+            vec3 spec = ks * specHighlightColor * lightColor * pow (max(dot(R, V), 0.0), ke);
+            
+            // final color
+            theColor = ambient + diffuse + spec;
+        
+            
+            // transform vertex to clip space
+            gl_Position = projT * viewT * modelT * vec4 (aVertexPosition, 1.0);
+        }
+    
+        </script>
   
 
      <!-- wireframe fragment Shaders -->
@@ -55,39 +99,26 @@
 
      </script>
 
-     <script id="phong-F" type="x-shader/x-fragment">
-      #version 300 es
-      precision mediump float;
-  
-      in vec3 vNormal;
-      in vec3 vViewDir;
-  
-      uniform vec3 uLightPosition;
-      uniform vec3 uLightColor;
-      uniform vec3 uAmbientColor;
-      uniform vec3 uDiffuseColor;
-      uniform vec3 uSpecularColor;
-      uniform float uShininess;
-  
-      out vec4 fragColor;
-  
-      void main() {
-          vec3 normal = normalize(vNormal);
-          vec3 lightDir = normalize(uLightPosition - gl_FragCoord.xyz);
-          vec3 viewDir = normalize(vViewDir);
-          vec3 halfwayDir = normalize(lightDir + viewDir);
-  
-          float diffuse = max(dot(normal, lightDir), 0.0);
-          float specular = pow(max(dot(normal, halfwayDir), 0.0), uShininess);
-  
-          vec3 ambient = uAmbientColor * uLightColor;
-          vec3 diffuseColor = uDiffuseColor * uLightColor * diffuse;
-          vec3 specularColor = uSpecularColor * uLightColor * specular;
-  
-          vec3 finalColor = ambient + diffuseColor + specularColor;
-          fragColor = vec4(finalColor, 1.0);
-      }
-  </script>
+     <script id="phong-per-vertex-F" type="x-shader/x-fragment">
+        #version 300 es
+
+        // Fragment shader for phong illumination model
+        // Per fragment shading
+
+
+        precision mediump float;
+            
+        in vec3 theColor;
+
+        // Color that is the result of this shader
+        out vec4 fragColor;
+
+        void main(void) {
+            fragColor = vec4 (theColor.xyz, 1.0);
+            //fragColor = vec4 (1.0, 0.0, 0.0, 1.0);
+        }
+
+   </script>
   
      
      <!-- Matrix library and code for standard transformations -->
