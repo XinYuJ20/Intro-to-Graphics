@@ -134,10 +134,8 @@ function drawShapes() {
   function initPrograms() {
     
     wireframeP = initProgram("wireframe-V", "wireframe-F" );
-    shaderP = initProgram("phong-per-fragment-V", "phong-per-fragment-F")
     // Use this program instance
     gl.useProgram(wireframeP);
-    gl.useProgram(shaderP);
     
     // We attach the location of these shader values to the program instance
     // for easy access later in the code
@@ -145,7 +143,12 @@ function drawShapes() {
     wireframeP.uModelMatrix = gl.getUniformLocation(wireframeP, 'uModelMatrix');
     wireframeP.uViewMatrix = gl.getUniformLocation(wireframeP, 'uViewMatrix');
     wireframeP.uProjMatrix = gl.getUniformLocation(wireframeP, 'uProjMatrix');
-      
+    
+    setUpCamera(wireframeP);
+    
+    shaderP = initProgram("phong-per-fragment-V", "phong-per-fragment-F")
+    gl.useProgram(shaderP);
+    
     // uniforms
     shaderP.uModelT = gl.getUniformLocation (shaderP, 'modelT');
     shaderP.uViewT = gl.getUniformLocation (shaderP, 'viewT');
@@ -160,7 +163,6 @@ function drawShapes() {
     shaderP.ks = gl.getUniformLocation (shaderP, 'ks');
     shaderP.ke = gl.getUniformLocation (shaderP, 'ke');
     
-    setUpCamera(wireframeP);
   }
 
 
