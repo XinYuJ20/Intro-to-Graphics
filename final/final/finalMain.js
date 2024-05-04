@@ -54,17 +54,6 @@ function setUpCamera(program) {
     gl.uniformMatrix4fv(program.uViewMatrix, false, viewMatrix);
 
     
-    gl.useProgram (shaderP);
-    
-    let projMatrixP = glMatrix.mat4.create();
-    glMatrix.mat4.perspective(projMatrixP, 1.0472, 1, 1, 10);
-    gl.uniformMatrix4fv(shaderP.uProjMatrixP, false, projMatrixP);
-
-    // Set up your view
-    // Default is at (0,0,-5) looking at the origin
-    let viewMatrixP = glMatrix.mat4.create();
-    glMatrix.mat4.lookAt(viewMatrixP, [0, 2, -5], [0, 0, 0], [0, 1, 0]);
-    gl.uniformMatrix4fv(shaderP.uViewMatrixP, false, viewMatrixP);
 
 }
 
@@ -168,9 +157,6 @@ function drawShapes() {
     shaderP.uViewMatrix = gl.getUniformLocation(shaderP, 'uViewMatrixP');
     shaderP.uProjMatrix = gl.getUniformLocation(shaderP, 'uProjMatrixP');
 
-    shaderP.uModelT = gl.getUniformLocation (shaderP, 'modelT');
-    shaderP.uViewT = gl.getUniformLocation (shaderP, 'viewT');
-    shaderP.uProjT = gl.getUniformLocation (shaderP, 'projT');
     shaderP.ambientLight = gl.getUniformLocation (shaderP, 'ambientLight');
     shaderP.lightPosition = gl.getUniformLocation (shaderP, 'lightPosition');
     shaderP.lightColor = gl.getUniformLocation (shaderP, 'lightColor');
@@ -199,11 +185,14 @@ function drawShapes() {
       gl.vertexAttribPointer(program.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
       
       // add code for any additional vertex attribute
-      let myNormalBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.normals), gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(program.myNormalBuffer);
-      gl.vertexAttribPointer(program.myNormalBuffer, 3, gl.FLOAT, false, 0, 0);
+
+      if (program.aNormal != 1) {
+        let myNormalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.normals), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(program.aNormal);
+        gl.vertexAttribPointer(program.aNormal, 3, gl.FLOAT, false, 0, 0); 
+      }
       
       // Setting up the IBO
       let myIndexBuffer = gl.createBuffer();
