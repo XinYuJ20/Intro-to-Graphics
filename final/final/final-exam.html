@@ -24,7 +24,11 @@
         precision mediump float;
         // Vertex shader for phong illumination model
         // Per vertex shading
-    
+        
+        uniform mat4 uModelMatrixP;
+        uniform mat4 uViewMatrixP;
+        uniform mat4 uProjMatrixP;
+
         // Vertex Attributes
         in vec3 aVertexPosition; // in model coords
         in vec3 aNormal;    // in model coords

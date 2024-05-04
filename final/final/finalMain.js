@@ -53,6 +53,19 @@ function setUpCamera(program) {
     glMatrix.mat4.lookAt(viewMatrix, [0, 2, -5], [0, 0, 0], [0, 1, 0]);
     gl.uniformMatrix4fv(program.uViewMatrix, false, viewMatrix);
 
+    
+    gl.useProgram (shaderP);
+    
+    let projMatrixP = glMatrix.mat4.create();
+    glMatrix.mat4.perspective(projMatrixP, 1.0472, 1, 1, 10);
+    gl.uniformMatrix4fv(shaderP.uProjMatrixP, false, projMatrixP);
+
+    // Set up your view
+    // Default is at (0,0,-5) looking at the origin
+    let viewMatrixP = glMatrix.mat4.create();
+    glMatrix.mat4.lookAt(viewMatrixP, [0, 2, -5], [0, 0, 0], [0, 1, 0]);
+    gl.uniformMatrix4fv(shaderP.uViewMatrixP, false, viewMatrixP);
+
 }
 
 
@@ -145,11 +158,16 @@ function drawShapes() {
     wireframeP.uProjMatrix = gl.getUniformLocation(wireframeP, 'uProjMatrix');
     
     setUpCamera(wireframeP);
-    
+
     shaderP = initProgram("phong-per-fragment-V", "phong-per-fragment-F")
     gl.useProgram(shaderP);
     
     // uniforms
+
+    shaderP.uModelMatrix = gl.getUniformLocation(shaderP, 'uModelMatrixP');
+    shaderP.uViewMatrix = gl.getUniformLocation(shaderP, 'uViewMatrixP');
+    shaderP.uProjMatrix = gl.getUniformLocation(shaderP, 'uProjMatrixP');
+
     shaderP.uModelT = gl.getUniformLocation (shaderP, 'modelT');
     shaderP.uViewT = gl.getUniformLocation (shaderP, 'viewT');
     shaderP.uProjT = gl.getUniformLocation (shaderP, 'projT');
@@ -162,7 +180,8 @@ function drawShapes() {
     shaderP.kd = gl.getUniformLocation (shaderP, 'kd');
     shaderP.ks = gl.getUniformLocation (shaderP, 'ks');
     shaderP.ke = gl.getUniformLocation (shaderP, 'ke');
-    
+
+    setUpCamera(shaderP);
   }
 
 
