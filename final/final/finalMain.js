@@ -99,9 +99,23 @@ function drawShapes() {
   // gl.bindVertexArray(myCylinder.VAO);
   // gl.drawElements(gl.TRIANGLES, myCylinder.indices.length, gl.UNSIGNED_SHORT, 0);
 
+  gl.useProgram(shaderP);
+
+  gl.uniform3f(shaderP.ambientLight, 226/256, 36/256, 103/256);
+  gl.uniform3f(shaderP.lightPosition, 5, -5, -5);
+  gl.uniform3f(shaderP.lightColor, 247/256, 242/256, 195/256);
+
+  gl.uniform3f(shaderP.baseColor, 60/256, 88/256, 181/256);
+  gl.uniform3f(shaderP.specHighlightColor, 245/256, 182/256, 214/256);
+
+  gl.uniform1f(shaderP.ka, 0.57);
+  gl.uniform1f(shaderP.kd, 0.45);
+  gl.uniform1f(shaderP.ks, 0.30);
+  gl.uniform1f(shaderP.ke, 10);
+
   let modelMatrixSphere = glMatrix.mat4.create();
   glMatrix.mat4.translate(modelMatrixSphere, modelMatrixSphere,[ 0, 0, 0]);
-  gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixSphere); 
+  gl.uniformMatrix4fv(shaderP.uModelMatrix, false, modelMatrixSphere); 
   gl.bindVertexArray(mySphere.VAO);
   gl.drawElements(gl.TRIANGLES, mySphere.indices.length, gl.UNSIGNED_SHORT, 0);
 }
