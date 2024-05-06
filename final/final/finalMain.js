@@ -12,9 +12,19 @@
   var myCylinder = null;
   var mySphere = null;
   // textures
-
+  let worldTexture;
   // rotation
  
+  function doLoad(theTexture, theImage) {
+    gl.bindTexture(gl.TEXTURE_2D, theTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, theImage);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    
+    draw();
+}
 //
 // create shapes and VAOs for objects.
 // Note that you will need to bindVAO separately for each object / program based
@@ -26,7 +36,7 @@ function createShapes() {
   myCube.VAO = bindVAO (myCube, wireframeP);
 
   myCylinder = new Cylinder(20,20);
-  myCylinder.VAO = bindVAO (myCylinder, wireframeP);
+  myCylinder.VAO = bindVAO (myCylinder, shaderP);
 
   mySphere = new Sphere(20, 20);
   mySphere.VAO = bindVAO (mySphere, shaderP);
@@ -70,15 +80,18 @@ function setUpTextures(){
     gl.pixelStorei (gl.UNPACK_FLIP_Y_WEBGL, true);
     
     // get some texture space from the gpu
-    
+    worldTexture = gl.createTexture();
+
     // load the actual image
-    var worldImage = document.getElementById ('')
-    worldImage.crossOrigin = "";
+    var worldImage = new Image();
+    worldImage.src = 'water.jpg';
         
     // bind the texture so we can perform operations on it
         
     // load the texture data
-        
+    worldImage.onload = () => {
+      doLoad(worldTexture, worldImage);
+    };
     // set texturing parameters
 }
 
@@ -86,13 +99,19 @@ function setUpTextures(){
 //  This function draws all of the shapes required for your scene
 //
 function drawShapes() {
+  gl.useProgram(wireframeP);
 
-  // let modelMatrixPond = glMatrix.mat4.create(); 
-  // glMatrix.mat4.scale(modelMatrixPond, modelMatrixPond, [4, 0.3, 4]);
-  // glMatrix.mat4.translate(modelMatrixPond, modelMatrixPond,[0,0,0])
-  // gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixPond); 
-  // gl.bindVertexArray(myCube.VAO);
-  // gl.drawElements(gl.TRIANGLES, myCube.indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, worldTexture)
+  gl.uniform1f(program.uTheTexture,0);
+  program.uniform1f(program.uAlpha,0);
+
+  let modelMatrixPond = glMatrix.mat4.create(); 
+  glMatrix.mat4.scale(modelMatrixPond, modelMatrixPond, [4, 0.3, 4.5]);
+  glMatrix.mat4.translate(modelMatrixPond, modelMatrixPond,[0,0,0])
+  gl.uniformMatrix4fv(wireframeP.uModelMatrix, false, modelMatrixPond); 
+  gl.bindVertexArray(myCube.VAO);
+  gl.drawElements(gl.TRIANGLES, myCube.indices.length, gl.UNSIGNED_SHORT, 0);
   
   // let modelMatrixlily1 = glMatrix.mat4.create();
   // glMatrix.mat4.scale(modelMatrixlily1, modelMatrixlily1, [1, 0.5, 1]);
@@ -102,12 +121,108 @@ function drawShapes() {
   // gl.drawElements(gl.TRIANGLES, myCylinder.indices.length, gl.UNSIGNED_SHORT, 0);
 
   gl.useProgram(shaderP);
+  drawFlowers(.2,.25,-1.1);
+  drawFlowers(-.4,.25,-.8);
+  drawFlowers(-1,.25,-1);
+  // left most
+  drawFlowers(1.8,.25,-.3);
+  drawFlowers(1.9,.25,-1.3);
+  drawFlowers(1.5,.25,-1.3);
 
+  // between 2 lilies on the far right
+  drawLilyPads(-3,0.3,-1);
+  drawLilyPads(-2.2,0.3,-2);
+  // right most bottom
+  drawLilyPads(-4.,0.3,-3);
+  drawLilyPads(-3.3,0.3,-3.9);
+  drawLilyPads(-2.9,0.3,-5);
+  drawLilyPads(-5.3,0.3,-3.9);
+  // between 2 in the middle
+  drawLilyPads(-1,0.3,-1);
+  drawLilyPads(-0.1,0.3,-2);
+  drawLilyPads(-0.1,0.3,-3.2);
+  drawLilyPads(-1.1,0.3,-3.8);
+  drawLilyPads(-0.4,0.3,-5);
+  // middle lily
+  drawLilyPads(0.6, 0.3, -1)
+  // middle left
+  drawLilyPads(1.7,0.3,-2);
+  drawLilyPads(1.7,0.3,-3.2);
+  drawLilyPads(3,0.3,-3.2);
+  drawLilyPads(3,0.3,-1.8);
+  drawLilyPads(2.3,0.3,-4.5);
+  
+  drawLilyPads(4.3,0.3,-3);
+  drawLilyPads(4.4,0.3,-4);
+  drawLilyPads(5.9,0.3,-3);
+  drawLilyPads(5.5,0.3,-3.7);
+  //
+  drawLilyPads(5,0.3,-2);
+  drawLilyPads(4.5,0.3,-2.6);
+  drawLilyPads(4.2,0.3,-1.8);
+  drawLilyPads(4,0.3,-1.2);
+  drawLilyPads(5,0.3,-5);
+  drawLilyPads(6.2,0.3,-3.8);
+  drawLilyPads(6,0.3,-1.8);
+  drawLilyPads(6.2,0.3,-1);
+  drawLilyPads(5.5,0.3,-0.7);
+  drawLilyPads(5.9,0.3,0.1);
+  //
+  drawLilyPads(3.5,0.3,-5.1);
+  //far back
+  drawLilyPads(-1, 0.3, 4.3);
+  drawLilyPads(-1.5, 0.3, 4.3);
+  drawLilyPads(-2.5, 0.3, 4);
+  drawLilyPads(-3, 0.3, 3.2);
+  drawLilyPads(-3.5, 0.3, 4.5);
+  drawLilyPads(-4, 0.3, 4);
+  drawLilyPads(-5, 0.3, 4);
+  drawLilyPads(-4, 0.3, 2.7);
+  drawLilyPads(-4.5, 0.3, 3);
+  drawLilyPads(-6, 0.3, 4.3);
+  drawLilyPads(-5.5, 0.3, 3.2);
+  drawLilyPads(-5.8, 0.3, 2.8);
+  drawLilyPads(-6.2, 0.3, 3.5);
+  //mid back
+  drawLilyPads(-4.5, 0.3, 1);
+  drawLilyPads(-5, 0.3, 1.5);
+  drawLilyPads(-5.4, 0.3, .5);
+  drawLilyPads(-5.8, 0.3, .9);
+  drawLilyPads(-6, 0.3, 1.3);
+  drawLilyPads(-6.2, 0.3, .3);
+}
+
+
+function drawLilyPads(x, y, z){
+  gl.uniform3f(shaderP.ambientLight, 91/256, 207/256, 83/256);
+  gl.uniform3f(shaderP.lightPosition, -50, 100, 5);
+  gl.uniform3f(shaderP.lightColor, 132/256, 232/256, 125/256);
+
+  gl.uniform3f(shaderP.baseColor, 61/256, 171/256, 53/256);
+  gl.uniform3f(shaderP.specHighlightColor, 245/256, 182/256, 214/256);
+
+  gl.uniform1f(shaderP.ka, 0.57);
+  gl.uniform1f(shaderP.kd, 0.45);
+  gl.uniform1f(shaderP.ks, 0.30);
+  gl.uniform1f(shaderP.ke, 10);
+
+  let modelMatrixlily1 = glMatrix.mat4.create();
+  glMatrix.mat4.scale(modelMatrixlily1, modelMatrixlily1, [.3,.2,.4]);
+  glMatrix.mat4.translate(modelMatrixlily1, modelMatrixlily1,[ x, y, z])
+  gl.uniformMatrix4fv(shaderP.uModelMatrix, false, modelMatrixlily1); 
+  gl.bindVertexArray(myCylinder.VAO);
+  gl.drawElements(gl.TRIANGLES, myCylinder.indices.length, gl.UNSIGNED_SHORT, 0);
+
+}
+
+
+
+function drawFlowers(x, y, z){
   gl.uniform3f(shaderP.ambientLight, 226/256, 36/256, 103/256);
-  gl.uniform3f(shaderP.lightPosition, 5, -5, -5);
+  gl.uniform3f(shaderP.lightPosition, -50, 100, 5);
   gl.uniform3f(shaderP.lightColor, 247/256, 242/256, 195/256);
 
-  gl.uniform3f(shaderP.baseColor, 60/256, 88/256, 181/256);
+  gl.uniform3f(shaderP.baseColor, 247/256, 181/256, 225/256);
   gl.uniform3f(shaderP.specHighlightColor, 245/256, 182/256, 214/256);
 
   gl.uniform1f(shaderP.ka, 0.57);
@@ -116,13 +231,12 @@ function drawShapes() {
   gl.uniform1f(shaderP.ke, 10);
 
   let modelMatrixSphere = glMatrix.mat4.create();
-  glMatrix.mat4.translate(modelMatrixSphere, modelMatrixSphere,[ 0, 0, 0]);
+  glMatrix.mat4.translate(modelMatrixSphere, modelMatrixSphere,[ x, y, z]);
+  glMatrix.mat4.scale(modelMatrixSphere, modelMatrixSphere,[ 0.2, 0.2, 0.2]);
   gl.uniformMatrix4fv(shaderP.uModelMatrix, false, modelMatrixSphere); 
   gl.bindVertexArray(mySphere.VAO);
   gl.drawElements(gl.TRIANGLES, mySphere.indices.length, gl.UNSIGNED_SHORT, 0);
 }
-
-
   //
   // Use this function to create all the programs that you need
   // You can make use of the auxillary function initProgram
@@ -186,7 +300,7 @@ function drawShapes() {
       
       // add code for any additional vertex attribute
 
-      if (program.aNormal != 1) {
+      if (program.aNormal != -1) {
         let myNormalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.normals), gl.STATIC_DRAW);
